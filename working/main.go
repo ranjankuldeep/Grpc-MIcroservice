@@ -13,8 +13,10 @@ import (
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 	hh := handlers.NewHello(l)
+	ph := handlers.NewProducts(l)
 	sm := http.NewServeMux()
 	sm.Handle("/", hh)
+	sm.Handle("/products", ph)
 
 	s := &http.Server{
 		Addr:         ":8080",
@@ -34,7 +36,7 @@ func main() {
 	signal.Notify(signChan, os.Interrupt)
 	signal.Notify(signChan, os.Kill)
 
-	// block until signal is received
+	// block until signal is received from channel
 	sig := <-signChan
 	l.Println("Received terminate, graceful shutdown", sig)
 
