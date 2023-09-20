@@ -15,6 +15,7 @@ func NewHello(l *log.Logger) *Hello {
 	return &Hello{l}
 }
 
+// This is a method that implements the Handler interface
 func (h *Hello) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.l.Println("Hello World")
 	// r.Body has i/o reader interface

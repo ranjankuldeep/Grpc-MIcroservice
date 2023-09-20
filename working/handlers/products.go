@@ -3,6 +3,8 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 	"working/data"
 )
 
@@ -22,11 +24,43 @@ func (p *Products) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// handle post request
 	if r.Method == http.MethodPost {
+
+		p.l.Println("POST", r.URL.Path)
 		p.addProduct(w, r)
 		return
 	}
-	// catch all
-	w.WriteHeader(http.StatusMethodNotAllowed)
+	//handle put request
+	if r.Method == http.MethodPut {
+		p.updateProduct(0, w, r)
+		println("PUT", r.URL.Path)
+		// expect the id in the URI
+		p.l.Println("PUT", r.URL.Path)
+		reg := regexp.MustCompile(`/([0-9]+)`)
+		g := reg.FindAllStringSubmatch(r.URL.Path, -1)
+		if len(g) != 1 {
+			p.l.Println("Invalid URI more than one id")
+			http.Error(w, "Invalid URI", http.StatusBadRequest)
+			return
+		}
+		if len(g[0]) != 2 {
+			p.l.Println(g)
+			p.l.Println("Invalid URI more than one capture group")
+			http.Error(w, "Invalid URI", http.StatusBadRequest)
+			return
+		}
+
+		idString := g[0][1]
+		id, err := strconv.Atoi(idString)
+		if err != nil {
+			p.l.Println("Invalid URI unable to convert to number")
+			http.Error(w, "Invalid URI", http.StatusBadRequest)
+			return
+		}
+		p.l.Println("got id", id)
+
+		// catch all
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 }
 
 func (p *Products) getProducts(w http.ResponseWriter, r *http.Request) {
@@ -49,4 +83,18 @@ func (p *Products) addProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	p.l.Printf("Prod: %#v", prod)
 	data.AddProduct(prod)
+}
+func (p *Products) updateProduct(id int, w http.ResponseWriter, r *http.Request) {
+	p.l.Println("Handle PUT Product")
+	p.l.Println("got id", id)
+
+	// // Below is a pointer to a Product struct that is empty
+	// prod := &data.Product{}
+
+	// err := prod.FromJSON(r.Body)
+	// if err != nil {
+	// 	http.Error(w, "Unable to unmarshal JSON", http.StatusBadRequest)
+	// }
+	// p.l.Printf("Prod: %#v", prod)
+	// data.AddProduct(prod)
 }

@@ -33,6 +33,7 @@ func main() {
 	}()
 	// graceful shutdown
 	signChan := make(chan os.Signal)
+	//This also listen for SIGTERM like ctrl+c
 	signal.Notify(signChan, os.Interrupt)
 	signal.Notify(signChan, os.Kill)
 
