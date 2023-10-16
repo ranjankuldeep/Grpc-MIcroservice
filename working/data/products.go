@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -35,6 +36,14 @@ func GetProducts() Products {
 func AddProduct(p *Product) {
 	p.ID = getNextId()
 	productList = append(productList, p)
+}
+func UpdateProduct(id int, p *Product) {
+	for i := 0; i < len(productList); i++ {
+		if id == productList[i].ID {
+			productList[i] = p
+			fmt.Println("hey product matched")
+		}
+	}
 }
 func getNextId() int {
 	lp := productList[len(productList)-1]
